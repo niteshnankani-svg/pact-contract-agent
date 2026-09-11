@@ -1,0 +1,10 @@
+{
+  "dataset": "ACORD",
+  "split": "test",
+  "retrieval": "BM25 lexical baseline",
+  "queries_evaluated": 57,
+  "corpus_size": 3931,
+  "ndcg_at_10": 0.09642193425197912,
+  "archive_sha256": "c9e851456a14aed161033b856e9f40f3cc9f46cf7282c2007b143420e93a65c3",
+  "limitations": "Unjudged corpus entries scored zero; query IDs may overlap splits. No tuning on this test result. This does not measure agent or legal accuracy."
+}

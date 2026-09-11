@@ -1,0 +1,14 @@
+.venv/
+.env
+.env.*
+!.env.example
+runtime/
+data/external/
+models/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.sites-runtime/
+.DS_Store

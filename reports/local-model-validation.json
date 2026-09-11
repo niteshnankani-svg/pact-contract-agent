@@ -1,0 +1,13 @@
+{
+  "model": "gemma3:1b",
+  "provider": "Ollama",
+  "input": "Illustrative agreement, explicit renewal 2027-06-30 and 90 days notice",
+  "real_model_calls": true,
+  "attempts": 3,
+  "final_result": "blocked_pending_evidence",
+  "verified_topics": ["notice_period"],
+  "missing_topics": ["renewal_date"],
+  "task_created": false,
+  "conclusion": "Guardrails prevented execution on incomplete evidence. The 1B model did not pass this end-to-end extraction smoke test, including targeted recovery. Do not qualify this model for production from workflow fixture tests.",
+  "next_qualification": "Run a stronger served model on held-out CUAD/ContractNLI examples and representative company agreements, then measure end-to-end task correctness."
+}

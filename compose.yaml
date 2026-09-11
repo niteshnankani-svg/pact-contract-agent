@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: pact
+      POSTGRES_USER: pact
+      POSTGRES_PASSWORD: ${PACT_DB_PASSWORD:?Set PACT_DB_PASSWORD}
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pact -d pact"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  api:
+    build: .
+    ports: ["127.0.0.1:8080:8080"]
+    environment: &app-env
+      PACT_MODE: production
+      PACT_DATABASE_URL: postgresql+psycopg://pact:${PACT_DB_PASSWORD}@postgres:5432/pact
+      PACT_CHECKPOINT_URL: postgresql://pact:${PACT_DB_PASSWORD}@postgres:5432/pact
+      PACT_API_KEYS: ${PACT_API_KEYS:?Set hashed API credential map}
+      PACT_PROVIDER: openai-compatible
+      PACT_MODEL: ${PACT_MODEL:?Set model name}
+      PACT_MODEL_URL: ${PACT_MODEL_URL:?Set endpoint base URL}
+      PACT_MODEL_API_KEY: ${PACT_MODEL_API_KEY:-}
+    depends_on:
+      postgres: {condition: service_healthy}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health/ready')"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+  worker:
+    build: .
+    command: ["python", "-m", "pact.worker"]
+    environment: *app-env
+    depends_on:
+      api: {condition: service_healthy}
+    restart: unless-stopped
+volumes:
+  postgres-data:

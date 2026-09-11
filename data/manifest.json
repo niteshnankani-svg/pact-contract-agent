@@ -1,0 +1,36 @@
+{
+  "datasets": {
+    "cuad": {
+      "repo": "theatticusproject/cuad",
+      "revision": "a3c393f5d103fd0c516374e4fdff676c8176dcb1",
+      "url": "https://huggingface.co/datasets/theatticusproject/cuad/resolve/a3c393f5d103fd0c516374e4fdff676c8176dcb1/CUAD_v1/CUAD_v1.json",
+      "filename": "cuad.json",
+      "license": "CC-BY-4.0",
+      "role": "Clause extraction ground truth: 510 contracts, 41 clause types. Not end-to-end workflow ground truth."
+    },
+    "acord": {
+      "repo": "theatticusproject/acord",
+      "revision": "7ba1c6f2e0baaa32e78c78c2b02e9c57b102af4e",
+      "url": "https://huggingface.co/datasets/theatticusproject/acord/resolve/7ba1c6f2e0baaa32e78c78c2b02e9c57b102af4e/ACORD%20Dataset%20%26%20ReadMe.zip",
+      "filename": "acord.zip",
+      "license": "CC-BY-4.0",
+      "role": "Clause retrieval: 114 queries, 3931 clauses, graded relevance judgments."
+    },
+    "contract_nli": {
+      "repo": "stanfordnlp/contract-nli",
+      "revision": "eced6528dd3c1d14d73f9a87df8f7bdbc03126f9",
+      "url": "https://raw.githubusercontent.com/stanfordnlp/contract-nli/eced6528dd3c1d14d73f9a87df8f7bdbc03126f9/resources/contract-nli.zip",
+      "filename": "contract-nli.zip",
+      "license": "CC-BY-4.0",
+      "role": "Evidence-aware entailment: 423 train, 61 dev, 123 test NDAs. Preserve original spans."
+    }
+  },
+  "models": {
+    "local_validation": {"id": "gemma3:1b", "provider": "ollama", "status": "Local functional validation; not a legal accuracy qualification"},
+    "reasoning_candidate": {"id": "Qwen/Qwen3.6-35B-A3B", "revision": "995ad96eacd98c81ed38be0c5b274b04031597b0", "license": "Apache-2.0", "status": "Requires an OpenAI-compatible serving endpoint; not locally evaluated"},
+    "embedding_candidate": {"id": "BAAI/bge-m3", "revision": "5617a9f61b028005a4858fdac845db406aefb181", "license": "MIT", "status": "Optional hybrid retrieval"},
+    "reranker_candidate": {"id": "BAAI/bge-reranker-v2-m3", "revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e", "license": "Apache-2.0", "status": "Optional cross-encoder reranking"},
+    "ocr_candidate": {"id": "ibm-granite/granite-docling-258M", "revision": "982fe3b40f2fa73c365bdb1bcacf6c81b7184bfe", "license": "Apache-2.0", "status": "Not integrated; native text PDF/DOCX supported"},
+    "nli_candidate": {"id": "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli", "revision": "6f5cf0a2b59cabb106aca4c287eed12e357e90eb", "license": "MIT", "status": "Future benchmark baseline; not used to certify evidence"}
+  }
+}
