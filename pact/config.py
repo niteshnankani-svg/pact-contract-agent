@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     retrieval: str = "lexical"
     embedding_model: str = "BAAI/bge-m3"
     reranker_model: str = "BAAI/bge-reranker-v2-m3"
+    neural_profile: str = 'compact'
+    embedding_path: str = ''
+    reranker_path: str = ''
     model_timeout: int = 90
     max_model_calls: int = 12
     max_documents: int = 20
@@ -36,6 +39,8 @@ class Settings(BaseSettings):
             raise ValueError("Unknown provider")
         if self.retrieval not in {'lexical', 'hybrid'}:
             raise ValueError('Retrieval must be lexical or hybrid')
+        if self.neural_profile not in {'compact', 'multilingual'}:
+            raise ValueError('Neural profile must be compact or multilingual')
         if self.mode == "production":
             if not self.database_url.startswith("postgresql+psycopg://"):
                 raise ValueError("Production requires PostgreSQL")

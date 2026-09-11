@@ -2,7 +2,8 @@ import hashlib
 import secrets
 from dataclasses import dataclass
 
-from fastapi import HTTPException, Request
+from fastapi import HTTPException, Request, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 
 @dataclass(frozen=True)
@@ -12,7 +13,7 @@ class Identity:
     role: str
 
 
-def identity(request: Request) -> Identity:
+def identity(request: Request, credentials: HTTPAuthorizationCredentials | None = Depends(HTTPBearer(auto_error=False))) -> Identity:
     settings = request.app.state.settings
     header = request.headers.get("authorization", "")
     if not header.startswith("Bearer "):

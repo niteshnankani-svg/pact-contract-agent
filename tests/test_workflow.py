@@ -19,11 +19,11 @@ class FixtureModel:
         if schema is Plan:
             return Plan(topics=['notice_period', 'renewal_date'], rationale='Fixture test plan')
         items = []
-        if 'notice_period' in instruction:
+        if 'notice_period' in instruction or 'renewal_date' in instruction:
             for c in context:
                 for kind, value in [('notice_period', '90 days'), ('notice_period', '60 days'),
                                     ('renewal_date', '2027-06-30')]:
-                    if value in c['text']:
+                    if value in c['text'] and kind in instruction:
                         items.append(dict(kind=kind, value=value, quote=c['text'].strip(), clause_id=c['clause_id']))
         return Extraction(items=items)
 
@@ -82,11 +82,14 @@ def test_durable_approval_and_amendment(env):
         process(store, build_graph(store, FixtureModel(), saver), store.claim('restarted-worker'))
     task = store.list(store.tasks, 'demo')[0]
     assert task['due_date'] == '2027-04-01'
+    assert client.post('/api/tasks/'+task['id']+'/complete',json={'plan_hash':task['plan_hash']}).status_code==200
+    assert client.post('/api/tasks/'+task['id']+'/complete',json={'plan_hash':task['plan_hash']}).status_code==200
     assert client.get('/api/reviews/'+review['id']).json()['status'] == 'completed'
     store.execute_actions('demo', review['id'])
     assert len(store.list(store.tasks, 'demo')) == 1
     source(client, matter['id'], 60, doc['id'])
     assert store.list(store.tasks, 'demo')[0]['status'] == 'stale'
+    assert client.post('/api/tasks/'+task['id']+'/complete',json={'plan_hash':task['plan_hash']}).status_code==409
     assert decision(client, review).status_code == 409
     next_review = run(client, store, settings, matter, 'two')
     assert next_review['proposal']['actions'][0]['due_date'] == '2027-05-01'
@@ -137,7 +140,7 @@ def test_missing_confirmation_and_bad_hash(env):
 
 
 def test_exact_evidence_rejects_hallucination():
-    c={'id':'c1','text':'Notice requires 90 days.','start':0,'document_id':'d1','executed':True,'ordinal':1}
+    c={'id':'c1','text':'Renewal notice requires 90 days.','start':0,'document_id':'d1','executed':True,'ordinal':1}
     item={'kind':'notice_period','clause_id':'c1','quote':c['text'],'value':'30 days'}
     valid, rejected=verify([item],[c])
     assert not valid and rejected

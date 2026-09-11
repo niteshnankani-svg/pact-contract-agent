@@ -100,6 +100,16 @@ class Store:
         with self.tx() as conn:
             self._audit(conn, tenant, matter_id, event, **data)
 
+    def reserve_model_call(self, tenant, review_id, purpose):
+        with self.tx() as conn:
+            review = self.current_review(conn, tenant, review_id)
+            count = review['data'].get('model_calls', 0)
+            if count >= self.settings.max_model_calls:
+                raise RuntimeError('Review model-call budget exhausted')
+            conn.execute(update(self.reviews).where(self.reviews.c.id == review_id).values(
+                data={**review['data'], 'model_calls':count+1}))
+            self._audit(conn,tenant,review['matter_id'],'model_call_started',review_id=review_id,purpose=purpose,number=count+1)
+
     def create_matter(self, tenant, title, owner, playbook):
         ident = str(uuid.uuid4())
         with self.tx() as conn:
@@ -254,6 +264,19 @@ class Store:
             conn.execute(update(self.reviews).where(self.reviews.c.id == review_id).values(
                 status=status, data={**review["data"], **data}))
             self._audit(conn, tenant, review["matter_id"], "review_finished", review_id=review_id, status=status)
+
+    def complete_task(self, tenant, task_id, plan_hash, subject):
+        with self.tx() as conn:
+            task = self._one(conn,self.tasks,tenant,task_id)
+            matter = self._one(conn,self.matters,tenant,task['matter_id'],True)
+            task = self._one(conn,self.tasks,tenant,task_id,True)
+            if task['revision'] != matter['revision'] or task['status']=='stale' or task['data']['plan_hash']!=plan_hash:
+                raise Conflict('Task changed; refresh its current version')
+            if task['status']=='completed':
+                return
+            conn.execute(update(self.tasks).where(self.tasks.c.id==task_id).values(status='completed',
+                data={**task['data'],'completed_by':subject,'completed_at':time.time()}))
+            self._audit(conn,tenant,task['matter_id'],'task_completed',task_id=task_id,subject=subject)
 
     def claim(self, worker):
         now = time.time()

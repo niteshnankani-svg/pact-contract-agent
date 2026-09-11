@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, create_model
 
 TOPICS = Literal["notice_period", "renewal_date", "auto_renewal", "liability", "assignment", "confidentiality"]
 
@@ -27,7 +27,7 @@ class Playbook(Strict):
     max_notice_days: int = Field(default=60, ge=1, le=365)
     require_assignment_consent: bool = True
     max_liability_months: int = Field(default=12, ge=1, le=120)
-    preferred_notice_clause: str = Field(default="Either party may prevent renewal by giving at least 60 days' written notice before the renewal date.", max_length=1500)
+    preferred_notice_clause: str = Field(default="Either party may prevent renewal by giving at least {max_notice_days} days' written notice before the renewal date.", max_length=1500)
 
 
 class Plan(Strict):
@@ -46,6 +46,12 @@ class Extracted(Strict):
     value: str = Field(max_length=300)
 
 
+def extraction_schema(topics):
+    """Constrain generation to the topics actually requested by this graph node."""
+    item = create_model('TopicEvidence', __base__=Extracted, kind=(Literal[tuple(topics)], ...))
+    return create_model('TopicExtraction', __base__=Strict, items=(list[item], Field(max_length=12)))
+
+
 class Followup(Strict):
     queries: list[str] = Field(max_length=2)
     rationale: str = Field(max_length=500)
@@ -60,3 +66,7 @@ class Decision(Strict):
 
 class TaskSync(Strict):
     confirm_external_write: bool = False
+
+
+class TaskComplete(Strict):
+    plan_hash: str = Field(min_length=64, max_length=64)

@@ -12,6 +12,8 @@ Use `.env.example`, the API command and a separate worker from the README. Only 
 
 The same image runs two services: API with its default command and worker with `python -m pact.worker`. Provision PostgreSQL, persistent database storage and an OpenAI-compatible model endpoint. Expose only the API through your cloud TLS ingress. Do not expose PostgreSQL or the model serving endpoint publicly without authentication.
 
+The default image provides lexical retrieval. For compact neural retrieval and semantic chunking, build with `docker build --build-arg INSTALL_NEURAL=true -t pact-neural .`, set `PACT_RETRIEVAL=hybrid`, and provision model-cache storage and sufficient RAM. The first neural request downloads the pinned compact models unless `PACT_EMBEDDING_PATH` and `PACT_RERANKER_PATH` point to mounted weights. Do not enable hybrid retrieval in an image built without its dependencies. Model-serving infrastructure remains separate from this API/worker image.
+
 Set these environment variables through your cloud secret manager:
 
 - `PACT_MODE=production`

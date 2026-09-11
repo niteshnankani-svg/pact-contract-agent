@@ -1,0 +1,93 @@
+{
+  "dataset": "CUAD",
+  "revision": "a3c393f5d103fd0c516374e4fdff676c8176dcb1",
+  "model": "gemma3:1b",
+  "selection": "8 contracts from title-SHA256 modulo-5 holdout bucket 4; 4 positive and 4 negative; source <=120k characters",
+  "retrieval": "BM25 top 3 after notice/renewal lexical cue filter; full contract input",
+  "cases": [
+    {
+      "id": "WASTE2ENERGYHOLDINGS,INC_06_03_2010-EX-10.2-STRATEGIC ALLIANCE AGREEMENT__Notice Period To Terminate Renewal",
+      "gold_present": false,
+      "predicted": 0,
+      "overlapping_gold": 0,
+      "rejected": 1,
+      "correct_abstention": true,
+      "error": null,
+      "seconds": 1.98
+    },
+    {
+      "id": "OPTIMIZEDTRANSPORTATIONMANAGEMENT,INC_07_26_2000-EX-6.6-DISTRIBUTOR AGREEMENT__Notice Period To Terminate Renewal",
+      "gold_present": false,
+      "predicted": 0,
+      "overlapping_gold": 0,
+      "rejected": 1,
+      "correct_abstention": true,
+      "error": null,
+      "seconds": 1.33
+    },
+    {
+      "id": "MEDALISTDIVERSIFIEDREIT,INC_05_18_2020-EX-10.1-CONSULTING AGREEMENT__Notice Period To Terminate Renewal",
+      "gold_present": false,
+      "predicted": 0,
+      "overlapping_gold": 0,
+      "rejected": 1,
+      "correct_abstention": true,
+      "error": null,
+      "seconds": 1.53
+    },
+    {
+      "id": "SUCAMPOPHARMACEUTICALS,INC_11_04_2015-EX-10.2-STRATEGIC ALLIANCE AGREEMENT__Notice Period To Terminate Renewal",
+      "gold_present": false,
+      "predicted": 0,
+      "overlapping_gold": 0,
+      "rejected": 0,
+      "correct_abstention": false,
+      "error": "ValidationError",
+      "seconds": 18.47
+    },
+    {
+      "id": "FTENETWORKS,INC_02_18_2016-EX-99.4-STRATEGIC ALLIANCE AGREEMENT__Notice Period To Terminate Renewal",
+      "gold_present": true,
+      "predicted": 0,
+      "overlapping_gold": 0,
+      "rejected": 0,
+      "correct_abstention": false,
+      "error": "ValidationError",
+      "seconds": 19.75
+    },
+    {
+      "id": "NEONSYSTEMSINC_03_01_1999-EX-10.5-DISTRIBUTOR AGREEMENT_Amendment__Notice Period To Terminate Renewal",
+      "gold_present": true,
+      "predicted": 0,
+      "overlapping_gold": 0,
+      "rejected": 1,
+      "correct_abstention": false,
+      "error": null,
+      "seconds": 9.08
+    },
+    {
+      "id": "VAPOTHERM, INC. - Manufacturing and Supply Agreement__Notice Period To Terminate Renewal",
+      "gold_present": true,
+      "predicted": 0,
+      "overlapping_gold": 0,
+      "rejected": 0,
+      "correct_abstention": false,
+      "error": "ValidationError",
+      "seconds": 18.22
+    },
+    {
+      "id": "COOLTECHNOLOGIES,INC_10_25_2017-EX-10.71-Strategic Alliance Agreement__Notice Period To Terminate Renewal",
+      "gold_present": true,
+      "predicted": 0,
+      "overlapping_gold": 0,
+      "rejected": 0,
+      "correct_abstention": false,
+      "error": "ValidationError",
+      "seconds": 16.22
+    }
+  ],
+  "span_overlap_precision": null,
+  "positive_case_recall": 0.0,
+  "negative_abstention_rate": 0.75,
+  "limitations": "Small balanced development diagnostic; overlap is weaker than exact span/value correctness. No legal or production accuracy claim."
+}

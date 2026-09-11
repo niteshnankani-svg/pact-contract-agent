@@ -26,6 +26,8 @@
     }
   },
   "models": {
+    "compact_embedding_candidate": {"id":"BAAI/bge-small-en-v1.5", "revision":"5c38ec7c405ec4b44b94cc5a9bb96e735b38267a", "license":"MIT", "status":"Compact English dense retrieval profile"},
+    "compact_reranker_candidate": {"id":"cross-encoder/ms-marco-MiniLM-L6-v2", "revision":"233902d25c440f23af6f7d6e94d2946bac0bee0a", "license":"Apache-2.0", "status":"Compact cross-encoder retrieval profile"},
     "local_validation": {"id": "gemma3:1b", "provider": "ollama", "status": "Local functional validation; not a legal accuracy qualification"},
     "reasoning_candidate": {"id": "Qwen/Qwen3.6-35B-A3B", "revision": "995ad96eacd98c81ed38be0c5b274b04031597b0", "license": "Apache-2.0", "status": "Requires an OpenAI-compatible serving endpoint; not locally evaluated"},
     "embedding_candidate": {"id": "BAAI/bge-m3", "revision": "5617a9f61b028005a4858fdac845db406aefb181", "license": "MIT", "status": "Optional hybrid retrieval"},

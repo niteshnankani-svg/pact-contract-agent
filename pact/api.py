@@ -8,8 +8,9 @@ from fastapi.staticfiles import StaticFiles
 from pact.auth import identity, require
 from pact.config import Settings
 from pact.documents import chunks, extract
-from pact.schema import MatterCreate, DocumentCreate, Playbook, Decision
+from pact.schema import MatterCreate, DocumentCreate, Playbook, Decision, TaskComplete
 from pact.store import Store, Conflict, NotFound
+from pact.guardrails import BodyLimit, inspect_text
 
 
 def create_app(settings=None):
@@ -18,6 +19,7 @@ def create_app(settings=None):
     store = Store(settings)
     app = FastAPI(title='Pact · Contract Change & Renewal Agent', version='0.1.0')
     app.state.settings, app.state.store = settings, store
+    app.add_middleware(BodyLimit, limit=settings.max_upload_bytes + 100_000)
 
     @app.exception_handler(Conflict)
     async def conflict(_, exc):
@@ -29,12 +31,12 @@ def create_app(settings=None):
 
     @app.middleware('http')
     async def headers(request, call_next):
-        if int(request.headers.get('content-length', '0')) > settings.max_upload_bytes + 100_000:
-            return JSONResponse({'detail': 'Request too large'}, status_code=413)
         response = await call_next(request)
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['Cache-Control'] = 'no-store'
         response.headers['Content-Security-Policy'] = "default-src 'self'; style-src 'self'; script-src 'self'; frame-ancestors 'none'"
+        if request.url.path == '/docs':
+            response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data:; frame-ancestors 'none'"
         return response
 
     @app.get('/health/live')
@@ -51,6 +53,10 @@ def create_app(settings=None):
     @app.get('/api/me')
     def me(who=Depends(identity)):
         return {**who.__dict__, 'mode': settings.mode, 'model': settings.model, 'retrieval': settings.retrieval}
+
+    @app.get('/api/public-config')
+    def public_config():
+        return {'demo':settings.mode=='demo'}
 
     @app.get('/api/matters')
     def matters(who=Depends(identity)):
@@ -76,10 +82,16 @@ def create_app(settings=None):
     def add(ident, body, who, source):
         require(who, 'admin', 'reviewer')
         try:
-            clauses = chunks(body.text, body.strategy)
+            encoder = None
+            if body.strategy == 'semantic' and settings.retrieval == 'hybrid':
+                from pact.retrieval import neural
+                encoder = neural(settings.neural_profile, settings.embedding_path, settings.reranker_path).encode
+            clauses = chunks(body.text, body.strategy, encoder)
         except ValueError as exc:
             raise HTTPException(422, str(exc)) from exc
-        return store.add_document(who.tenant, ident, body.model_dump(), clauses, source)
+        if len(body.text) > settings.max_text_chars:
+            raise HTTPException(413, 'Extracted text exceeds configured limit')
+        return store.add_document(who.tenant, ident, {**body.model_dump(), 'input_flags':inspect_text(body.text)}, clauses, source)
 
     @app.post('/api/matters/{ident}/documents', status_code=201)
     def document(ident: str, body: DocumentCreate, who=Depends(identity)):
@@ -152,6 +164,16 @@ def create_app(settings=None):
     def operations(who=Depends(identity)):
         require(who, 'admin')
         return store.operations(who.tenant)
+
+    @app.get('/api/tasks')
+    def tasks(who=Depends(identity)):
+        return store.list(store.tasks,who.tenant)
+
+    @app.post('/api/tasks/{ident}/complete')
+    def complete(ident: str, body: TaskComplete, who=Depends(identity)):
+        require(who,'admin','reviewer')
+        store.complete_task(who.tenant,ident,body.plan_hash,who.subject)
+        return store.get(store.tasks,who.tenant,ident)
 
     web = Path(__file__).resolve().parent.parent / 'web'
     app.mount('/assets', StaticFiles(directory=web), name='assets')

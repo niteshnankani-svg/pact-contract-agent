@@ -28,9 +28,21 @@ def extract(raw, name):
     raise ValueError('Supported files: TXT, MD, PDF and DOCX')
 
 
-def chunks(text, strategy='clause'):
+def chunks(text, strategy='clause', encoder=None):
     if strategy == 'semantic':
-        raise ValueError('Semantic chunking is not enabled; choose clause, recursive or fixed')
+        if encoder is None:
+            raise ValueError('Semantic chunking requires the neural retrieval profile')
+        units = chunks(text, 'recursive')
+        # Compare paragraph embeddings; keep original offsets, whitespace and order.
+        vectors = encoder([c['text'] for c in units]) if units else []
+        grouped = []
+        for i, unit in enumerate(units):
+            if i and float(vectors[i-1] @ vectors[i]) >= .72 and unit['end'] - grouped[-1]['start'] <= 3000:
+                grouped[-1]['end'] = unit['end']
+                grouped[-1]['text'] = text[grouped[-1]['start']:unit['end']]
+            else:
+                grouped.append({**unit, 'id':f'c{len(grouped)}'})
+        return grouped
     boundaries = [0]
     if strategy != 'fixed':
         boundaries += [m.end() for m in re.finditer(r'\n\s*\n', text)]

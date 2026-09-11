@@ -1,0 +1,43 @@
+{
+  "model": "gemma3:1b",
+  "provider": "ollama",
+  "real_model_calls": true,
+  "fixture_type": "synthetic workflow acceptance cases; not legal benchmark accuracy",
+  "cases": [
+    {
+      "case": "original_90_days",
+      "passed": true,
+      "expected_due": "2027-04-01",
+      "blocked": false,
+      "issues": [],
+      "verified_topics": [
+        "assignment",
+        "confidentiality",
+        "liability",
+        "notice_period",
+        "renewal_date"
+      ],
+      "model_calls": 6,
+      "task_write_verified": true
+    },
+    {
+      "case": "amendment_60_days",
+      "passed": true,
+      "expected_due": "2027-05-01",
+      "blocked": false,
+      "issues": [],
+      "verified_topics": [
+        "assignment",
+        "confidentiality",
+        "liability",
+        "notice_period",
+        "renewal_date"
+      ],
+      "model_calls": 6,
+      "task_write_verified": true
+    }
+  ],
+  "passed": true,
+  "stale_tasks_invalidated": true,
+  "elapsed_seconds": 21.32
+}

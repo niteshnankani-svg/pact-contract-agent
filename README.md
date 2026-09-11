@@ -4,7 +4,7 @@ Pact turns an executed agreement and its amendments into an evidence-backed rene
 
 **Built:** FastAPI service, review UI, persistent LangGraph workflow, three analysis subgraphs, bounded evidence recovery, clause/fixed/recursive chunking, exact-span verification, version reconciliation, approval interrupts, idempotent task writes, read-back verification and tracked-change DOCX exports.
 
-**Qualification:** This is a working implementation with tested workflow controls, not a qualified autonomous legal system. Local Gemma 1B inference and the BM25 baseline have documented limitations. See [reports](reports), [agent framework](AGENT_FRAMEWORK.md), and [deployment requirements](DEPLOYMENT.md).
+**Qualification:** The real-model illustrative workflow passes, but Gemma 1B failed the real-contract diagnostic. See [executed checks and remaining release gates](VALIDATION.md), [reports](reports), [agent framework](AGENT_FRAMEWORK.md), and [deployment requirements](DEPLOYMENT.md).
 
 ## Run locally
 
@@ -39,13 +39,16 @@ The app does not send legal notices, sign agreements, or silently change execute
 pytest -q
 ruff check pact tests scripts
 python scripts/evaluate.py acord
+python scripts/evaluate.py acord --retrieval hybrid --split test
+python scripts/validate_live.py
+python scripts/evaluate_cuad.py
 python scripts/evaluate.py download --dataset cuad
 python scripts/evaluate.py download --dataset contract_nli
 ```
 
 Pinned dataset revisions and model candidates are in [data/manifest.json](data/manifest.json). Downloaded contracts, runtime records and credentials are excluded from Git. Workflow tests use explicit fixture models; they do not measure LLM accuracy. ACORD retrieval evaluation uses real public relevance judgments.
 
-Optional neural retrieval: install `pip install '.[ml]'`, set `PACT_RETRIEVAL=hybrid`, and provision enough RAM/storage for BGE-M3 plus BGE-reranker-v2-m3. This path uses pinned revisions and has not been locally benchmarked. It does not silently fall back to lexical retrieval.
+Neural retrieval: install `pip install '.[ml]'` and set `PACT_RETRIEVAL=hybrid`. The default compact profile uses pinned BGE-small-en-v1.5 and MiniLM-L6 reranking and has been benchmarked on ACORD. Set `PACT_NEURAL_PROFILE=multilingual` for the larger BGE-M3/BGE-reranker-v2-m3 candidates, which remain unqualified. `PACT_EMBEDDING_PATH` and `PACT_RERANKER_PATH` can point to already downloaded local models. Missing models fail explicitly. Semantic chunking requires this neural profile; clause, fixed and recursive chunking work without it.
 
 ## Project map
 

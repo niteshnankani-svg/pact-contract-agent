@@ -1,0 +1,10 @@
+{
+  "local_pytest": {"passed":38,"skipped":1,"skipped_reason":"PostgreSQL endpoint tested separately"},
+  "isolated_postgresql": {"passed":1,"real_database":true,"checkpoint_resume_verified":true},
+  "ruff": "passed",
+  "javascript_syntax": "passed",
+  "staged_secret_pattern_scan": "passed",
+  "docker_build": "not_run: Docker unavailable; GitHub workflow authorization pending",
+  "live_model_workflow": "passed: see live-workflow.json",
+  "real_contract_model_qualification": "failed: see cuad-notice-extraction.json"
+}

@@ -13,8 +13,8 @@ The review workspace contains a matter inbox, source documents, quoted findings,
 ## Current executable scope
 
 - Text, text-bearing PDF and DOCX inputs; explicit executed/draft status and amendment ancestry.
-- Notice and renewal-date evidence drives deterministic calendar-day deadline arithmetic.
-- Liability, assignment and confidentiality are extracted for review; automated legal policy classification for these topics is not implemented.
+- Notice and renewal-date evidence drives deterministic calendar-day deadline arithmetic; explicit ISO and named-month dates include a required year.
+- Liability, assignment and confidentiality are extracted for review. Narrow numeric/consent checks surface policy deviations and create evidence-linked review tasks. They do not determine legal enforceability or automatically approve exceptions.
 - Notice policy generates a proposed clause replacement. Only an executed future source changes operative obligations.
 - Approval creates or updates internal tasks; external task-system connectors are not implemented in this release.
 - JSON review export and a new DOCX document containing tracked deletions/insertions.

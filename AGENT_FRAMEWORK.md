@@ -20,7 +20,7 @@ flowchart TD
   J --> K[Read back and verify task]
 ```
 
-The three compiled subgraphs run in parallel. Each retrieves source chunks, calls the real structured model API and verifies its returned spans. The coverage route permits one recovery pass, with up to two calls for missing critical topics. A normal invocation uses four model calls; recovery increases this to at most six. Worker retries can repeat failed calls up to three attempts; graph checkpoints preserve completed supersteps.
+The three compiled subgraphs run in parallel. Each topic receives its own constrained schema, prompt and relevant candidates. The coverage route permits one recovery pass, with up to two calls for missing critical topics. An invocation uses at most seven initial model calls and two recovery calls; absent-topic candidates skip inference. A persisted per-review call budget also covers retries. Worker attempts are bounded and checkpoints preserve completed supersteps.
 
 ## State and provenance
 
@@ -30,7 +30,7 @@ Matter revision, document IDs, exact character offsets, executed status, source 
 
 Bearer authorization and tenant scoping apply to all business routes. Roles restrict writes. Upload sizes and text lengths are bounded. DOCX expansion is bounded. PDF scans fail explicitly instead of fabricating OCR. Document content is supplied as untrusted model data. The document parser does not run macros or execute content.
 
-The initial deadline scope is explicit ISO renewal dates and numeric calendar-day notice periods. Business-day calculations, implied anniversaries and conditional renewal options need additional support; incomplete interpretations block task execution.
+The deadline scope is explicit ISO or named-month dates including year and unambiguous calendar-day notice periods. Numeric and common written durations are supported. Business-day calculations, implied anniversaries and conditional renewal options need additional support; incomplete interpretations block task execution. Source-level input flags and a hard streamed body limit complement schema limits.
 
 ## Output controls
 
@@ -42,7 +42,7 @@ Proposal hashes bind the revision, findings, issues, actions and redlines. Appro
 
 The local profile uses actual Ollama inference with Gemma 3 1B. It is a functional smoke-test model and is not adequate evidence of legal accuracy. The OpenAI-compatible provider accepts a configured endpoint, model and secret. Qwen is a candidate, not a measured performance claim.
 
-Lexical BM25 is the tested CPU baseline. Optional hybrid retrieval combines BM25 and pinned BGE-M3 ranks with reciprocal-rank fusion, then reranks candidates with pinned BGE-reranker-v2-m3. The optional model path requires extra dependencies and is not included in the lightweight container or local accuracy results. Three implemented chunkers are clause, fixed and recursive; semantic chunking requests are rejected explicitly.
+Lexical BM25 is the CPU baseline. The benchmarked compact hybrid profile combines BM25 and BGE-small ranks with reciprocal-rank fusion, then applies MiniLM-L6 cross-encoder reranking. The larger multilingual BGE-M3 profile remains an unqualified option. Neural dependencies and weights are separate from the lightweight container. Clause, fixed and recursive chunkers preserve offsets; semantic grouping uses neural paragraph similarity and preserves source boundaries. See VALIDATION.md for measured results and release gates.
 
 ## Failure behavior
 
